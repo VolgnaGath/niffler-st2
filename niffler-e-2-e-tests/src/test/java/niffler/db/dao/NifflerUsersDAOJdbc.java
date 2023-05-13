@@ -5,10 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import javax.sql.DataSource;
 import niffler.db.DataSourceProvider;
 import niffler.db.ServiceDB;
+import niffler.db.entity.Authority;
 import niffler.db.entity.AuthorityEntity;
 import niffler.db.entity.UserEntity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -87,6 +90,75 @@ public class NifflerUsersDAOJdbc implements NifflerUsersDAO {
       throw new RuntimeException(e);
     }
   }
+
+  @Override
+  public UserEntity getUser(UserEntity user) {
+    UserEntity userInfo = new UserEntity();
+    try (Connection conn = ds.getConnection();
+         PreparedStatement st = conn.prepareStatement("SELECT * FROM users WHERE username = ?");
+         PreparedStatement stAuthorities = conn.prepareStatement("SELECT * FROM authorities WHERE user_id = ?")) {
+      st.setString(1, user.getUsername());
+      ResultSet resultSet = st.executeQuery();
+      if (resultSet.next()) {
+        userInfo.setId((UUID) resultSet.getObject(1));
+        userInfo.setUsername(resultSet.getString(2));
+        userInfo.setEnabled(resultSet.getBoolean(4));
+        userInfo.setAccountNonExpired(resultSet.getBoolean(5));
+        userInfo.setAccountNonLocked(resultSet.getBoolean(6));
+        userInfo.setCredentialsNonExpired(resultSet.getBoolean(7));
+        List<AuthorityEntity> entityList = new ArrayList<>();
+        stAuthorities.setObject(1, userInfo.getId());
+        ResultSet result = stAuthorities.executeQuery();
+        while (result.next()) {
+          AuthorityEntity auInfo = new AuthorityEntity();
+          auInfo.setId((UUID) result.getObject("id"));
+          auInfo.setAuthority(Authority.valueOf(result.getString(3)));
+          entityList.add(auInfo);
+        }
+        userInfo.setAuthorities(entityList);
+        return userInfo;
+      } else {
+        throw new IllegalArgumentException("Can`t find user by given username: " + user.getUsername());
+      }
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  @Override
+  public int updateUser(UserEntity user) {
+    int executeUpdate;
+
+    try (Connection conn = ds.getConnection()) {
+
+      conn.setAutoCommit(false);
+
+      try (PreparedStatement updateUserSt = conn.prepareStatement("UPDATE users SET username = ?, password = ?, enabled = ?, account_non_expired = ?,"+
+              " account_non_locked = ?, credentials_non_expired = ? WHERE id = ?")) {
+        updateUserSt.setString(1, user.getUsername());
+        updateUserSt.setString(2, pe.encode(user.getPassword()));
+        updateUserSt.setBoolean(3, user.getEnabled());
+        updateUserSt.setBoolean(4, user.getCredentialsNonExpired());
+        updateUserSt.setBoolean(5, user.getAccountNonLocked());
+        updateUserSt.setBoolean(6, user.getCredentialsNonExpired());
+        updateUserSt.setObject(7, user.getId());
+        executeUpdate = updateUserSt.executeUpdate();
+
+
+      } catch (SQLException e) {
+        conn.rollback();
+        conn.setAutoCommit(true);
+        throw new RuntimeException(e);
+      }
+
+      conn.commit();
+      conn.setAutoCommit(true);
+
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+    return executeUpdate;
+  }
+
 
   @Override
   public int removeUser(UserEntity user) {
