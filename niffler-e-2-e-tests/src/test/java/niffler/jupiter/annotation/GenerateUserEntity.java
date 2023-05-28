@@ -1,6 +1,7 @@
 package niffler.jupiter.annotation;
 
 
+import niffler.db.dao.NifflerDaoType;
 import niffler.jupiter.extension.GenerateUserExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.lang.annotation.ElementType;
@@ -12,7 +13,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @ExtendWith(GenerateUserExtension.class)
-public @interface GenerateRandomUserEntity {
+public @interface GenerateUserEntity {
+
+    NifflerDaoType userDao() default NifflerDaoType.HIBERNATE;
 
     String username() default "";
 

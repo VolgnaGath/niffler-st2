@@ -3,11 +3,10 @@ package niffler.jupiter.extension;
 import com.github.javafaker.Faker;
 import io.qameta.allure.AllureId;
 import niffler.db.dao.NifflerUsersDAO;
-import niffler.db.dao.NifflerUsersDAOJdbc;
 import niffler.db.entity.Authority;
 import niffler.db.entity.AuthorityEntity;
 import niffler.db.entity.UserEntity;
-import niffler.jupiter.annotation.GenerateRandomUserEntity;
+import niffler.jupiter.annotation.GenerateUserEntity;
 import org.junit.jupiter.api.extension.*;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -23,66 +22,61 @@ public class GenerateUserExtension implements
     public static ExtensionContext.Namespace GENERATE_USER_NAMESPACE = ExtensionContext.Namespace.create(GenerateUserExtension.class);
 
     private static Faker faker = new Faker();
-    private NifflerUsersDAO usersDAO = new NifflerUsersDAOJdbc();
+    private NifflerUsersDAO usersDAO;
 
 
     private static final String TEST_PWD = "12345";
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        final String testId = getTestId(context);
-        Parameter[] testParameters = context.getRequiredTestMethod().getParameters();
+
         List<UserEntity> userEntityList = new ArrayList<>();
-        for (Parameter parameter : testParameters) {
-            GenerateRandomUserEntity randomUserEntity = parameter.getAnnotation(GenerateRandomUserEntity.class);
+        List<Parameter> parameters = Arrays.stream(context.getRequiredTestMethod().getParameters())
+                .filter(p -> p.isAnnotationPresent(GenerateUserEntity.class))
+                .filter(p -> p.getType().isAssignableFrom(UserEntity.class))
+                .toList();
+        for (Parameter parameter : parameters) {
+
+            GenerateUserEntity annotation = parameter.getAnnotation(GenerateUserEntity.class);
+            usersDAO = annotation.userDao().getDao();
             UserEntity user = new UserEntity();
-            if(randomUserEntity != null) {
-                if(Objects.equals(randomUserEntity.username(), "")) {
-                    user.setUsername(faker.name().username());
-                } else {
-                    user.setUsername(randomUserEntity.username());
-                }
-                if (Objects.equals(randomUserEntity.password(), "")) {
-                    user.setPassword(TEST_PWD);
-                } else {
-                    user.setPassword(randomUserEntity.password());
-                }
-                user.setEnabled(randomUserEntity.enabled());
-                user.setAccountNonExpired(randomUserEntity.accountNonExpired());
-                user.setAccountNonLocked(randomUserEntity.accountNonLocked());
-                user.setCredentialsNonExpired(randomUserEntity.credentialsNonExpired());
-                user.setAuthorities(Arrays.stream(Authority.values()).map(
-                        a -> {
-                            AuthorityEntity ae = new AuthorityEntity();
-                            ae.setAuthority(a);
-                            ae.setUser(user);
-                            return ae;
-                        }
-                ).toList());
-            }
-            userEntityList.add(user);
+            user.setUsername("".equals(annotation.username()) ? faker.name().username() : annotation.username());
+            user.setPassword("".equals(annotation.password()) ? TEST_PWD : annotation.password());
+            user.setEnabled(annotation.enabled());
+            user.setAccountNonExpired(annotation.accountNonExpired());
+            user.setAccountNonLocked(annotation.accountNonLocked());
+            user.setCredentialsNonExpired(annotation.credentialsNonExpired());
+            user.setAuthorities(Arrays.stream(Authority.values()).map(
+                    a -> {
+                        AuthorityEntity ae = new AuthorityEntity();
+                        ae.setAuthority(a);
+                        ae.setUser(user);
+                        return ae;
+                    }
+            ).toList());
             usersDAO.createUser(user);
+            userEntityList.add(user);
         }
-        context.getStore(GENERATE_USER_NAMESPACE).put(testId, userEntityList);
+        context.getStore(GENERATE_USER_NAMESPACE).put(getTestId(context), userEntityList);
     }
+
     @SuppressWarnings("unchecked")
     @Override
     public void afterEach(ExtensionContext context) {
         final String testId = getTestId(context);
         List<UserEntity> users = (List<UserEntity>) context.getStore(GENERATE_USER_NAMESPACE)
                 .get(testId);
-
         for (UserEntity user : users) {
             usersDAO.removeUser(user);
         }
     }
 
 
-
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         return parameterContext.getParameter().getType().isAssignableFrom(UserEntity.class);
     }
+
     @SuppressWarnings("unchecked")
     @Override
     public UserEntity resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
@@ -93,6 +87,7 @@ public class GenerateUserExtension implements
 
         return users.get(parameterContext.getIndex());
     }
+
     private String getTestId(ExtensionContext context) {
         return Objects
                 .requireNonNull(context.getRequiredTestMethod().getAnnotation(AllureId.class))

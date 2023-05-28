@@ -3,7 +3,6 @@ package niffler.db.jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public abstract class JpaTransactionManager {
 

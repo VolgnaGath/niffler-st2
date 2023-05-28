@@ -35,11 +35,13 @@ public class NifflerUsersDAOHibernate extends JpaTransactionManager implements N
 
   @Override
   public int updateUser(UserEntity user) {
+    merge(user);
     return 0;
   }
 
   @Override
   public UserEntity getUser(UserEntity user) {
-    return null;
+    return em.createQuery("select u from UserEntity u where username = :username", UserEntity.class)
+            .setParameter("username", user.getUsername()).getSingleResult();
   }
 }
