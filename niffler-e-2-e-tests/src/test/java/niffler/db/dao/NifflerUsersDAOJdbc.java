@@ -14,8 +14,7 @@ import niffler.db.ServiceDB;
 import niffler.db.entity.Authority;
 import niffler.db.entity.AuthorityEntity;
 import niffler.db.entity.UserEntity;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
 
 public class NifflerUsersDAOJdbc implements NifflerUsersDAO {
 
@@ -125,34 +124,20 @@ public class NifflerUsersDAOJdbc implements NifflerUsersDAO {
     }
   }
   @Override
-  public int updateUser(UserEntity user) {
+  public int updateUser(UserEntity user) throws RuntimeException {
     int executeUpdate;
 
-    try (Connection conn = ds.getConnection()) {
-
-      conn.setAutoCommit(false);
-
-      try (PreparedStatement updateUserSt = conn.prepareStatement("UPDATE users SET username = ?, password = ?, enabled = ?, account_non_expired = ?,"+
-              " account_non_locked = ?, credentials_non_expired = ? WHERE id = ?")) {
-        updateUserSt.setString(1, user.getUsername());
-        updateUserSt.setString(2, pe.encode(user.getPassword()));
-        updateUserSt.setBoolean(3, user.getEnabled());
-        updateUserSt.setBoolean(4, user.getCredentialsNonExpired());
-        updateUserSt.setBoolean(5, user.getAccountNonLocked());
-        updateUserSt.setBoolean(6, user.getCredentialsNonExpired());
-        updateUserSt.setObject(7, user.getId());
-        executeUpdate = updateUserSt.executeUpdate();
-
-
-      } catch (SQLException e) {
-        conn.rollback();
-        conn.setAutoCommit(true);
-        throw new RuntimeException(e);
-      }
-
-      conn.commit();
-      conn.setAutoCommit(true);
-
+    try (Connection conn = ds.getConnection();
+         PreparedStatement updateUserSt = conn.prepareStatement("UPDATE users SET username = ?, password = ?, enabled = ?, account_non_expired = ?," +
+                 " account_non_locked = ?, credentials_non_expired = ? WHERE id = ?")) {
+      updateUserSt.setString(1, user.getUsername());
+      updateUserSt.setString(2, pe.encode(user.getPassword()));
+      updateUserSt.setBoolean(3, user.getEnabled());
+      updateUserSt.setBoolean(4, user.getCredentialsNonExpired());
+      updateUserSt.setBoolean(5, user.getAccountNonLocked());
+      updateUserSt.setBoolean(6, user.getCredentialsNonExpired());
+      updateUserSt.setObject(7, user.getId());
+      executeUpdate = updateUserSt.executeUpdate();
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
