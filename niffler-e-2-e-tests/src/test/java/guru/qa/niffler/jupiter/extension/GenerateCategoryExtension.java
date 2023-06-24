@@ -1,8 +1,8 @@
-package niffler.jupiter.extension;
+package guru.qa.niffler.jupiter.extension;
 
-import niffler.api.CategoryService;
-import niffler.jupiter.annotation.GenerateCategory;
-import niffler.model.CategoryJson;
+import guru.qa.niffler.api.CategoryService;
+import guru.qa.niffler.jupiter.annotation.GenerateCategory;
+import guru.qa.niffler.model.CategoryJson;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.extension.*;
 import retrofit2.Retrofit;

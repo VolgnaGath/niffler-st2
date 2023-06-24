@@ -1,7 +1,6 @@
-package niffler.jupiter.annotation;
+package guru.qa.niffler.jupiter.annotation;
 
-import niffler.jupiter.extension.ClasspathUserConverter;
-import niffler.jupiter.extension.ClasspathUserUpdateConverter;
+import guru.qa.niffler.jupiter.extension.ClasspathUserConverter;
 import org.junit.jupiter.params.converter.ConvertWith;
 
 import java.lang.annotation.ElementType;
@@ -11,6 +10,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-@ConvertWith(ClasspathUserUpdateConverter.class)
+@ConvertWith(ClasspathUserConverter.class)
 public @interface ClasspathUserUpdate {
 }
