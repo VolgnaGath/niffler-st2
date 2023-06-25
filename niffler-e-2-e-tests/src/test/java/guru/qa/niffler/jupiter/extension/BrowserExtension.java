@@ -1,5 +1,4 @@
 package guru.qa.niffler.jupiter.extension;
-
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import io.qameta.allure.Allure;
@@ -12,23 +11,23 @@ import org.openqa.selenium.TakesScreenshot;
 
 public class BrowserExtension implements TestExecutionExceptionHandler, AfterEachCallback {
 
-  @Override
-  public void handleTestExecutionException(ExtensionContext context, Throwable throwable)
-      throws Throwable {
-    if (WebDriverRunner.hasWebDriverStarted()) {
-      Allure.addAttachment("Screen on fail",
-          new ByteArrayInputStream(((TakesScreenshot) WebDriverRunner.getWebDriver())
-              .getScreenshotAs(OutputType.BYTES))
-      );
+    @Override
+    public void handleTestExecutionException(ExtensionContext context, Throwable throwable)
+            throws Throwable {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Allure.addAttachment("Screen on fail",
+                    new ByteArrayInputStream(((TakesScreenshot) WebDriverRunner.getWebDriver())
+                            .getScreenshotAs(OutputType.BYTES))
+            );
+        }
+
+        throw throwable;
     }
 
-    throw throwable;
-  }
-
-  @Override
-  public void afterEach(ExtensionContext context) throws Exception {
-    if (WebDriverRunner.hasWebDriverStarted()) {
-      Selenide.closeWebDriver();
+    @Override
+    public void afterEach(ExtensionContext context) throws Exception {
+        if (WebDriverRunner.hasWebDriverStarted()) {
+            Selenide.closeWebDriver();
+        }
     }
-  }
 }

@@ -1,10 +1,12 @@
 package guru.qa.niffler.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 import java.util.UUID;
 
 public class SpendJson {
+
     @JsonProperty("id")
     private UUID id;
     @JsonProperty("spendDate")
@@ -19,6 +21,9 @@ public class SpendJson {
     private String description;
     @JsonProperty("username")
     private String username;
+
+    public SpendJson() {
+    }
 
     public UUID getId() {
         return id;
@@ -74,5 +79,16 @@ public class SpendJson {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public String toString() {
+        return "SpendJson{" +
+                ", spendDate=" + spendDate +
+                ", category='" + category + '\'' +
+                ", currency=" + currency +
+                ", amount=" + amount +
+                ", description='" + description +
+                '}';
     }
 }

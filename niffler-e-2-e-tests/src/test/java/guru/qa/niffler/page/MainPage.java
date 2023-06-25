@@ -5,8 +5,8 @@ import guru.qa.niffler.config.Config;
 import guru.qa.niffler.page.component.Header;
 import lombok.Getter;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
+
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -25,13 +25,15 @@ public class MainPage extends BasePage<MainPage> {
 
     private final SelenideElement deleteSelectedBtn = $$(".button_type_small").find(text("Delete selected"));
     private final SelenideElement filterTodayBtn = $$(".button_type_small").find(text("Today"));
-    private final SelenideElement filterLastWeekBtn = $$(".button_type_small").find(text("Last week"));
+    private final SelenideElement filterLastWeekBtn = $$(".spendings__buttons .button_type_small").find(text("Last week"));
     private final SelenideElement filterLastMonthBtn = $$(".button_type_small").find(text("Last month"));
     private final SelenideElement filterAllTimeBtn = $$(".button_type_small").find(text("All time"));
     private final SelenideElement filterCloseBtn = $(".spendings__table-controls .button-icon_type_close");
     private final SelenideElement editSpendingBtn = $(".spendings-table .button-icon_type_edit");
     private final SelenideElement editSpendingCloseBtn = $(".spendings__button-group .button-icon_type_close");
     private final SelenideElement editSpendingSubmitBtn = $(".spendings__button-group .button-icon_type_submit");
+    private final SelenideElement spendingTable = $(".spendings-table tbody");
+    private final SelenideElement mainContentSectionStats = $(".main-content .main-content__section-stats");
     public Header getHeader() {
         return header;
     }
@@ -61,5 +63,9 @@ public class MainPage extends BasePage<MainPage> {
                 .scrollTo()
                 .click();
         deleteSelectedBtn.click();
+    }
+    public MainPage checkThatStatsLoaded() {
+        mainContentSectionStats.shouldBe(visible);
+        return this;
     }
 }

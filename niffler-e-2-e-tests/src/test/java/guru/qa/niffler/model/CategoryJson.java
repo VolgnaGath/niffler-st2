@@ -7,12 +7,11 @@ import java.util.UUID;
 public class CategoryJson {
     @JsonProperty("id")
     private UUID id;
+    @JsonProperty("category")
+    private String category;
     @JsonProperty("username")
     private String username;
 
-
-    @JsonProperty("category")
-    private String category;
     public UUID getId() {
         return id;
     }
@@ -37,4 +36,3 @@ public class CategoryJson {
         this.username = username;
     }
 }
-

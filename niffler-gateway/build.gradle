@@ -6,7 +6,7 @@ plugins {
 }
 
 group 'guru.qa'
-version '0.0.3-SNAPSHOT'
+version '0.0.4-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -82,7 +82,7 @@ dependencies {
     // For Java 11:
     implementation 'org.glassfish.jaxb:jaxb-runtime:4.0.1'
     implementation(files(genJaxb.classesDir).builtBy(genJaxb))
-
+    implementation 'user.java.lang:user.java.lang:2020.164.33984'
     jaxb 'org.glassfish.jaxb:jaxb-xjc:4.0.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

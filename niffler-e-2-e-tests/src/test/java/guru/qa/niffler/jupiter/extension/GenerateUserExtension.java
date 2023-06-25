@@ -1,91 +1,44 @@
 package guru.qa.niffler.jupiter.extension;
 
-import com.github.javafaker.Faker;
-import guru.qa.niffler.db.dao.NifflerUsersDAO;
+import guru.qa.niffler.jupiter.annotation.GenerateUser;
+import guru.qa.niffler.model.UserJson;
 import io.qameta.allure.AllureId;
-import guru.qa.niffler.db.entity.Authority;
-import guru.qa.niffler.db.entity.AuthorityEntity;
-import guru.qa.niffler.db.entity.UserEntity;
-import guru.qa.niffler.jupiter.annotation.GenerateUserEntity;
-import org.junit.jupiter.api.extension.*;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+
 import java.util.Objects;
 
+public class GenerateUserExtension implements BeforeEachCallback, ParameterResolver {
 
-public class GenerateUserExtension implements
-        BeforeEachCallback,
-        AfterEachCallback,
-        ParameterResolver {
-    public static ExtensionContext.Namespace GENERATE_USER_NAMESPACE = ExtensionContext.Namespace.create(GenerateUserExtension.class);
-
-    private static Faker faker = new Faker();
-    private NifflerUsersDAO usersDAO;
+    public static ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace
+            .create(GenerateUserExtension.class);
 
 
-    private static final String TEST_PWD = "12345";
+    private static final GenerateUserService generateUserService = new GenerateUserService();
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(ExtensionContext context) throws Exception {
+        GenerateUser annotation = context.getRequiredTestMethod()
+                .getAnnotation(GenerateUser.class);
 
-        List<UserEntity> userEntityList = new ArrayList<>();
-        List<Parameter> parameters = Arrays.stream(context.getRequiredTestMethod().getParameters())
-                .filter(p -> p.isAnnotationPresent(GenerateUserEntity.class))
-                .filter(p -> p.getType().isAssignableFrom(UserEntity.class))
-                .toList();
-        for (Parameter parameter : parameters) {
-
-            GenerateUserEntity annotation = parameter.getAnnotation(GenerateUserEntity.class);
-            usersDAO = annotation.userDao().getDao();
-            UserEntity user = new UserEntity();
-            user.setUsername("".equals(annotation.username()) ? faker.name().username() : annotation.username());
-            user.setPassword("".equals(annotation.password()) ? TEST_PWD : annotation.password());
-            user.setEnabled(annotation.enabled());
-            user.setAccountNonExpired(annotation.accountNonExpired());
-            user.setAccountNonLocked(annotation.accountNonLocked());
-            user.setCredentialsNonExpired(annotation.credentialsNonExpired());
-            user.setAuthorities(Arrays.stream(Authority.values()).map(
-                    a -> {
-                        AuthorityEntity ae = new AuthorityEntity();
-                        ae.setAuthority(a);
-                        ae.setUser(user);
-                        return ae;
-                    }
-            ).toList());
-            usersDAO.createUser(user);
-            userEntityList.add(user);
-        }
-        context.getStore(GENERATE_USER_NAMESPACE).put(getTestId(context), userEntityList);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void afterEach(ExtensionContext context) {
-        final String testId = getTestId(context);
-        List<UserEntity> users = (List<UserEntity>) context.getStore(GENERATE_USER_NAMESPACE)
-                .get(testId);
-        for (UserEntity user : users) {
-            usersDAO.removeUser(user);
+        if (annotation != null) {
+            context.getStore(NAMESPACE).put(getTestId(context), generateUserService.generateUser(annotation));
         }
     }
 
-
     @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return parameterContext.getParameter().getType().isAssignableFrom(UserEntity.class);
+    public boolean supportsParameter(ParameterContext parameterContext,
+                                     ExtensionContext extensionContext) throws ParameterResolutionException {
+        return parameterContext.getParameter().getType().isAssignableFrom(UserJson.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public UserEntity resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
-            throws ParameterResolutionException {
-        final String testId = getTestId(extensionContext);
-        List<UserEntity> users = (List<UserEntity>) extensionContext.getStore(GENERATE_USER_NAMESPACE)
-                .get(testId);
-
-        return users.get(parameterContext.getIndex());
+    public UserJson resolveParameter(ParameterContext parameterContext,
+                                     ExtensionContext extensionContext) throws ParameterResolutionException {
+        return extensionContext.getStore(NAMESPACE).get(getTestId(extensionContext), UserJson.class);
     }
 
     private String getTestId(ExtensionContext context) {

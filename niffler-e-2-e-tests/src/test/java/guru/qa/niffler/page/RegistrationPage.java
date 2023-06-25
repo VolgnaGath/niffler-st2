@@ -1,26 +1,25 @@
 package guru.qa.niffler.page;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
-import guru.qa.niffler.config.Config;
+import lombok.Getter;
 
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
-
+@Getter
 public class RegistrationPage extends BasePage<RegistrationPage> {
-    public static final String URL = Config.getConfig().getFrontUrl() + "/register";
-    private final SelenideElement registrationFormHeader = $(byText("Registration form"));
+
+    public static final String URL = "/register";
+
+    private final SelenideElement header = $(".form__paragraph");
     private final SelenideElement usernameInput = $("#username");
     private final SelenideElement passwordInput = $("#password");
     private final SelenideElement passwordSubmitInput = $("#passwordSubmit");
     private final SelenideElement signUpBtn = $("button[type='submit']");
-
+    private final SelenideElement formError = $(".form__error");
 
     @Override
     public RegistrationPage checkThatPageLoaded() {
-        registrationFormHeader.shouldBe(visible);
+        header.shouldHave(text("Registration form"));
         return this;
     }
 
@@ -31,9 +30,9 @@ public class RegistrationPage extends BasePage<RegistrationPage> {
         signUpBtn.click();
         return this;
     }
-    public RegistrationPage checkErrorMessage(String expectedErrorMessage) {
-        $(".form__error").shouldHave(text(expectedErrorMessage));
+
+    public RegistrationPage checkErrorMessage(String expectedMessage) {
+        formError.shouldHave(text(expectedMessage));
         return this;
     }
-
 }

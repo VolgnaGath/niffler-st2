@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'guru.qa'
-version = '0.0.3-SNAPSHOT'
+version = '0.0.4-SNAPSHOT'
 sourceCompatibility = '17'
 
 repositories {
@@ -16,6 +16,10 @@ subprojects {
                 ? "arm64v8/eclipse-temurin:19-jre"
                 : "eclipse-temurin:19-jre"
     }
+}
+
+dependencies {
+    implementation 'user.java.lang:user.java.lang:2020.164.33984'
 }
 
 tasks.named('test') {
