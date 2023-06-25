@@ -29,12 +29,12 @@ public class LocalConfig implements Config {
 
     @Override
     public String getFrontUrl() {
-        return "http://127.0.0.1:3000/";
+        return "http://127.0.0.1:3000";
     }
 
     @Override
     public String getAuthUrl() {
-        return "http://127.0.0.1:9000/";
+        return "http://127.0.0.1:9000";
     }
 
     @Override

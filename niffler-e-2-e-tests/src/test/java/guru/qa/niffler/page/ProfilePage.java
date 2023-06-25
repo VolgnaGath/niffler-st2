@@ -38,4 +38,11 @@ public class ProfilePage extends BasePage<ProfilePage>{
         createNewCategoryBtn.click();
         return this;
     }
+
+    public ProfilePage updateProfile(String name, String surname) {
+        setYourNameInput.val(name);
+        setYourSurnameInput.val(surname);
+        updateProfileSubmitBtn.scrollTo().click();
+        return this;
+    }
 }

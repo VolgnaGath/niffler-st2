@@ -3,12 +3,13 @@ package guru.qa.niffler.page;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.config.Config;
+import lombok.Getter;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
-
+@Getter
 public class RegistrationPage extends BasePage<RegistrationPage> {
     public static final String URL = Config.getConfig().getFrontUrl() + "/register";
     private final SelenideElement registrationFormHeader = $(byText("Registration form"));
