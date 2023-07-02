@@ -9,12 +9,11 @@ import guru.qa.niffler.jupiter.annotation.GenerateUser;
 import guru.qa.niffler.model.CurrencyValues;
 import guru.qa.niffler.model.SpendJson;
 import guru.qa.niffler.model.UserJson;
+import guru.qa.niffler.page.MainPage;
 import io.qameta.allure.AllureId;
 import org.junit.jupiter.api.Test;
 
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+
 import static guru.qa.niffler.condition.SpendCondition.spends;
 
 public class SpendsWebTest extends BaseWebTest {
@@ -32,20 +31,9 @@ public class SpendsWebTest extends BaseWebTest {
     void spendShouldBeDeletedByActionInTable(UserJson user) {
         final SpendJson spend = user.getSpends().get(0);
 
-        Selenide.open(CFG.getFrontUrl() + "/main");
-
-        $(".spendings-table tbody").$$("tr")
-                .find(text(spend.getDescription()))
-                .$$("td").first()
-                .scrollTo()
-                .click();
-
-        $$(".button_type_small").find(text("Delete selected"))
-                .click();
-
-        $(".spendings-table tbody")
-                .$$("tr")
-                .shouldHave(CollectionCondition.size(0));
+        Selenide.open(MainPage.MAIN_PAGE_URL, MainPage.class)
+                .deleteSpending(spend.getDescription())
+                .checkThatSpendsListIsEmpty();
     }
 
     @ApiLogin(user = @GenerateUser(
@@ -60,11 +48,9 @@ public class SpendsWebTest extends BaseWebTest {
     @Test
     void spendInTableShouldBeEqualToGiven(UserJson user) {
         final SpendJson spend = user.getSpends().get(0);
+        Selenide.open(MainPage.MAIN_PAGE_URL, MainPage.class)
+                .checkThatPageLoaded()
+                .getSpendingTable().$$("tr").shouldHave(spends(spend));
 
-        Selenide.open(CFG.getFrontUrl() + "/main");
-
-        $(".spendings-table tbody")
-                .$$("tr")
-                .shouldHave(spends(spend));
     }
 }

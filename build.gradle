@@ -18,10 +18,6 @@ subprojects {
     }
 }
 
-dependencies {
-    implementation 'user.java.lang:user.java.lang:2020.164.33984'
-}
-
 tasks.named('test') {
     useJUnitPlatform()
 }

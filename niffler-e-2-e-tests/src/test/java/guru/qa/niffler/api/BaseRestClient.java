@@ -22,7 +22,8 @@ public abstract class BaseRestClient {
         this(serviceBaseUrl, false, null);
     }
 
-    public BaseRestClient(String serviceBaseUrl, boolean followRedirect) {
+    public BaseRestClient(String serviceBaseUrl, boolean followRedirect)
+    {
         this(serviceBaseUrl, followRedirect, null);
     }
 

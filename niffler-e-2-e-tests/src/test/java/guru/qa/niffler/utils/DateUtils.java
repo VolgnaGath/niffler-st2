@@ -4,11 +4,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class DateUtils {
 
     public static String getDateAsString(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yy", new Locale("en", "EN"));
         return sdf.format(date);
     }
 
@@ -18,7 +19,7 @@ public class DateUtils {
     }
 
     public static Date fromString(String dateAsString) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yy", new Locale("en", "EN"));
         try {
             return sdf.parse(dateAsString);
         } catch (ParseException e) {

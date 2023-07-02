@@ -1,5 +1,6 @@
 package guru.qa.niffler.page;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.SelenideElement;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.page.component.Header;
@@ -54,18 +55,25 @@ public class MainPage extends BasePage<MainPage> {
         setAmountInput.val(amount);
         descriptionInput.val(descrip);
         addNewSpendingBtn.click();
-        $(".spendings-table tbody").$$("tr").find(text(descrip)).shouldHave(text(descrip));
+        spendingTable.$$("tr").find(text(descrip)).shouldHave(text(descrip));
         return this;
     }
 
-    public void deleteSpending(String descrip) {
-        $(".spendings-table tbody").$$("tr").find(text(descrip)).$$("td").first()
+    public MainPage deleteSpending(String descrip) {
+        spendingTable.$$("tr").find(text(descrip)).$$("td").first()
                 .scrollTo()
                 .click();
         deleteSelectedBtn.click();
+        return this;
     }
     public MainPage checkThatStatsLoaded() {
         mainContentSectionStats.shouldBe(visible);
+        return this;
+    }
+    public MainPage checkThatSpendsListIsEmpty() {
+        spendingTable
+                .$$("tr")
+                .shouldHave(CollectionCondition.size(0));
         return this;
     }
 }
