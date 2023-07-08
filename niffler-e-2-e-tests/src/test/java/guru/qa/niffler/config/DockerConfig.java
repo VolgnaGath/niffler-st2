@@ -71,4 +71,5 @@ public class DockerConfig implements Config {
     public int getCurrencyGrpcPort() {
         return 8092;
     }
+
 }

@@ -3,6 +3,7 @@ package guru.qa.niffler.test.grpc;
 import com.google.protobuf.Empty;
 import guru.qa.grpc.niffler.grpc.NifflerCurrencyServiceGrpc;
 import guru.qa.grpc.niffler.grpc.NifflerCurrencyServiceGrpc.NifflerCurrencyServiceBlockingStub;
+import guru.qa.grpc.niffler.grpc.NifflerSpendServiceGrpc;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.annotation.GrpcTest;
 import io.grpc.Channel;
@@ -14,16 +15,25 @@ public class BaseGrpcTest {
 
     protected static final Config CFG = Config.getConfig();
     protected static final Empty EMPTY = Empty.getDefaultInstance();
-    private static Channel channel;
+    private static Channel channelCurrency;
+    private static Channel channelSpend;
 
     static {
-        channel = ManagedChannelBuilder
+        channelCurrency = ManagedChannelBuilder
                 .forAddress(CFG.getCurrencyGrpcAddress(), CFG.getCurrencyGrpcPort())
+                .intercept(new AllureGrpc())
+                .usePlaintext()
+                .build();
+
+        channelSpend = ManagedChannelBuilder
+                .forAddress("localhost", 8094)
                 .intercept(new AllureGrpc())
                 .usePlaintext()
                 .build();
     }
 
     protected final NifflerCurrencyServiceBlockingStub currencyStub
-            = NifflerCurrencyServiceGrpc.newBlockingStub(channel);
+            = NifflerCurrencyServiceGrpc.newBlockingStub(channelCurrency);
+    protected final NifflerSpendServiceGrpc.NifflerSpendServiceBlockingStub spendStub
+            = NifflerSpendServiceGrpc.newBlockingStub(channelSpend);
 }

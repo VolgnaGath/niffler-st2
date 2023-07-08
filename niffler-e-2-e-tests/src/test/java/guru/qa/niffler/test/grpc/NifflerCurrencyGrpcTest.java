@@ -24,7 +24,7 @@ public class NifflerCurrencyGrpcTest extends BaseGrpcTest {
 
     @Test
     @DisplayName("gRPC: Сервис niffler-currency должен возвращать 4 валюты")
-    @AllureId("300001")
+    @AllureId("120")
     @Tag("gRPC")
     void getAllCurrenciesTest() {
         CurrencyResponse allCurrencies = step("Get all currencies", () ->
@@ -61,7 +61,7 @@ public class NifflerCurrencyGrpcTest extends BaseGrpcTest {
         );
     }
 
-    @AllureId("300002")
+    @AllureId("121")
     @MethodSource
     @DisplayName("gRPC: Пересчет курсов валют в niffler-currency")
     @ParameterizedTest(name = "При пересчете из {0} в {1} суммы {2} должен возвращаться результат {3}")

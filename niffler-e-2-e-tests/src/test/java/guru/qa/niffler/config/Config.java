@@ -31,4 +31,5 @@ public interface Config {
     String getCurrencyGrpcAddress();
 
     int getCurrencyGrpcPort();
+
 }

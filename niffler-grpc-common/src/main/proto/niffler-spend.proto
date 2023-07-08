@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+
+import "niffler-currency.proto";
+import "google/protobuf/timestamp.proto";
+
+package guru.qa.grpc.niffler;
+
+option java_multiple_files = true;
+option java_package = "guru.qa.grpc.niffler.grpc";
+option java_outer_classname = "NifflerSpendProto";
+
+service NifflerSpendService {
+  rpc GetSpendsForUser (SpendsRequest) returns (SpendsResponse) {}
+  rpc AddSpendForUser (AddSpendRequest) returns (AddSpendResponse) {}
+  rpc GetCategories (CategoriesRequest) returns (CategoriesResponse) {}
+  rpc AddCategoriesForUser (AddCategoryRequest) returns (AddCategoryResponse) {}
+}
+
+message SpendsRequest {
+  string username = 1;
+}
+message EditSpendsRequest {
+  string username = 1;
+  Spend spend = 2;
+}
+message SpendsResponse {
+  repeated Spend allSpendsForUser = 1;
+}
+message AddSpendRequest {
+  Spend spend = 1;
+}
+message AddSpendResponse {
+  string username = 1;
+  Spend spend = 2;
+}
+message Spend {
+  string id = 1;
+  google.protobuf.Timestamp spendDate = 2;
+  string category = 3;
+  CurrencyValues currency = 4;
+  double amount = 5;
+  string description = 6;
+  string username = 7;
+}
+message CategoriesRequest {
+  string username = 1;
+}
+message AddCategoryRequest {
+  string username = 1;
+  Category category = 2;
+}
+
+message CategoriesResponse {
+  repeated Category category = 1;
+}
+message AddCategoryResponse {
+  string username = 1;
+  Category category = 2;
+}
+
+message Category {
+  string username = 1;
+  string id = 2;
+  string category = 3;
+}
